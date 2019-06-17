@@ -23,6 +23,8 @@ def _get_act_from_arn(inp):
 
 
 def _process_roles(roles, roles_acct_dict, saml_signoff, debug, echo_env):
+    if roles_acct_dict is None or len(roles_acct_dict.keys()) == 0:
+        raise Exception("No roles acc dict")
     if len(roles) > 0:
         click.secho('PICK NUMBER FOR ROLES: ', fg='green')
         for idx, role in enumerate(roles):

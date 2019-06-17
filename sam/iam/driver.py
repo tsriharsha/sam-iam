@@ -38,11 +38,7 @@ def get_roles_from_saml(saml):
                     rest_arn = part.split("<")[0].replace(",", "")
                     role_arns.append(iam_part_arn + rest_arn)
 
-    return role_arns
-
-
-
-
+    return list(set(role_arns))
 
 
 def get_saml_and_roles_pg_src_via_perf_logs(sso_url, debug):

@@ -23,7 +23,7 @@ def configure():
                     , fg='green')
 
     sso_url = click.prompt("Enter your sso url", type=str)
-
+    sso_url = sso_url.replace("%", "%%") #escape % which are written for url encoding and decoding
     with SAMIAMConfig(SECTION) as sic:
         sic.set(SECTION, key_list[0], str(chrome_driver_path))
         sic.set(SECTION, key_list[1], str(sso_url))
