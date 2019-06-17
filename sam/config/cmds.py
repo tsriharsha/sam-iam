@@ -25,5 +25,5 @@ def configure():
     sso_url = click.prompt("Enter your sso url", type=str)
 
     with SAMIAMConfig(SECTION) as sic:
-        sic._cp.set(SECTION, key_list[0], str(chrome_driver_path))
-        sic._cp.set(SECTION, key_list[1], str(sso_url))
+        sic.set(SECTION, key_list[0], str(chrome_driver_path))
+        sic.set(SECTION, key_list[1], str(sso_url))
