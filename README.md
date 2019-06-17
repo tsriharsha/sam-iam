@@ -11,11 +11,19 @@ Hmm, so you want to be federated!
 
 ## Step 2. Installation
 
+### Installation via clone
+
 1. Clone the repository
 2. Then run the following command:
 
 ```bash
 pip install . --user
+```
+
+### Installation via tag
+
+```bash
+pip install -e git://github.com/tsriharsha/sam-iam.git@<release-tag>#egg=sam
 ```
 
 ## Step 3. Run the configure command
