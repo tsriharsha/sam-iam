@@ -1,5 +1,7 @@
 # SAM-IAM
 
+![alt text](https://images-na.ssl-images-amazon.com/images/I/515phx3dSqL._SX258_BO1,204,203,200_.jpg)
+
 Hmm, so you want to be federated!
 
 # Install Steps
