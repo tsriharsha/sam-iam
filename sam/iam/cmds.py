@@ -31,9 +31,11 @@ def iam():
               help='Echo creds to console. (default=False)')
 @click.option('-r', '--region', 'region', is_flag=False, default="eu-west-1",
               help='Specify region. (default=False)')
+@click.option('-ttl', '--timetolive', 'ttl', is_flag=False, default="28800",
+              help='Specify time to live for SAML in seconds. (default=28800)')
 @load_config
 @load_logo
-def get_creds(debug, sso_url, profile_name, default, echo, region):
+def get_creds(debug, sso_url, profile_name, default, echo, region, ttl):
     """
         Automatically retrieve aws credentials using chromedriver.
 
@@ -83,14 +85,14 @@ def get_creds(debug, sso_url, profile_name, default, echo, region):
         driver.quit()
 
     try:
-        role, creds = _process_roles(_roles, roles_acct_dict, saml_signoff, debug, echo, region)
+        role, creds = _process_roles(_roles, roles_acct_dict, saml_signoff, debug, echo, region, ttl)
     except:
         cred_failure = True
 
     if cred_failure is True:
-        role, creds = _process_roles_no_acct_info(roles, saml_signoff, debug, echo, region)
+        role, creds = _process_roles_no_acct_info(roles, saml_signoff, debug, echo, region, ttl)
 
-    _process_credentials_file(role, profile_name, creds, "af-south-1")
+    _process_credentials_file(role, profile_name, creds, region, ttl)
 
     click.secho('Loaded credentials to ~/.aws/credentials', fg='green')
 
@@ -129,6 +131,7 @@ def refresh(debug, sso_url, profile_name, default, echo):
         with AWSTomlConfig(profile_name) as atc:
             role_arn = atc.get(profile_name, 'samiam_role')
             region = atc.get(profile_name, 'region')
+            ttl = atc.get(profile_name, 'ttl')
     except Exception as e:
         raise ClickException("Error retrieving samiam_role to refresh with error: {}".format(str(e)))
 
@@ -141,8 +144,8 @@ def refresh(debug, sso_url, profile_name, default, echo):
         driver.close()
         driver.quit()
 
-    creds = get_creds_via_saml_request(role_arn, saml_signoff, debug, echo, region)
+    creds = get_creds_via_saml_request(role_arn, saml_signoff, debug, echo, region, ttl)
 
-    _process_credentials_file(role_arn, profile_name, creds, region)
+    _process_credentials_file(role_arn, profile_name, creds, region, ttl)
 
     click.secho('Loaded credentials to ~/.aws/credentials', fg='green')
