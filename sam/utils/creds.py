@@ -105,7 +105,7 @@ def __get_saml_roles_providers_from_saml(saml):
     return role_provider_dict
 
 
-def get_creds_via_saml_request(role, saml, debug, echo_env, region, cli=True):
+def get_creds_via_saml_request(role, saml, debug, echo_env, region, ttl, cli=True):
     import boto3
     client = boto3.client("sts", region_name=region)
     role_provider_dict = __get_saml_roles_providers_from_saml(saml)
@@ -113,7 +113,8 @@ def get_creds_via_saml_request(role, saml, debug, echo_env, region, cli=True):
     response = client.assume_role_with_saml(
             RoleArn=role,
             PrincipalArn=principal_arn,
-            SAMLAssertion=saml
+            SAMLAssertion=saml,
+            DurationSeconds=int(ttl)
     )
 
     if cli is True:
