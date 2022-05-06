@@ -14,7 +14,7 @@ def get_saml_response(driver, debug=False, sleeptime=0.5):
                 if debug == True:
                     print("Saml matches: " + str(entry))
                 from pygrok import Grok
-                pattern = '%{GREEDYDATA}SAMLResponse=%{DATA:samlresponse}"%{GREEDYDATA}'
+                pattern = '%{GREEDYDATA}SAMLResponse=%{DATA:samlresponse}&%{GREEDYDATA}"%{GREEDYDATA}'
                 grok = Grok(pattern)
                 saml_resp_enc = grok.match(str(entry))['samlresponse']
                 saml_resp_dec = unquote(saml_resp_enc)
@@ -54,6 +54,7 @@ def get_saml_and_roles_pg_src_via_perf_logs(sso_url, debug):
     chromedriver_options.set_capability("loggingPrefs", {'performance': 'ALL'})
     chromedriver_options.add_argument("--log-level=ALL")  # suppress selenium logging to stdout
     chromedriver_options.add_argument("user-data-dir={}".format(chrome_data_dir_path))
+    chromedriver_options.add_argument('--disable-gpu')
     chromedriver_options.add_experimental_option('w3c', False)
     try:
         driver = webdriver.Chrome(chrome_options=chromedriver_options, desired_capabilities=caps)

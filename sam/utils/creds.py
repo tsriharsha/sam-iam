@@ -13,7 +13,7 @@ def __get_act_from_arn(inp):
     return inp.split(":")[4]
 
 
-def __click_output(debug, echo_env, response):
+def __click_output(debug, echo_env, response, region):
     import click
     if debug is True:
         click.secho('\n' * 10)
@@ -24,7 +24,7 @@ def __click_output(debug, echo_env, response):
         click.secho('aws_access_key_id = {}'.format(response['Credentials']['AccessKeyId']))
         click.secho('aws_secret_access_key = {}'.format(response['Credentials']['SecretAccessKey']))
         click.secho('aws_session_token = {}'.format(response['Credentials']['SessionToken']))
-        click.secho('region = us-east-1')
+        click.secho('region = {}'.format(region))
         click.secho()
         click.secho("=" * 30)
         click.secho("#AWS ENV VARIABLES")
@@ -32,17 +32,17 @@ def __click_output(debug, echo_env, response):
         click.secho('export AWS_ACCESS_KEY_ID={}'.format(response['Credentials']['AccessKeyId']))
         click.secho('export AWS_SECRET_ACCESS_KEY={}'.format(response['Credentials']['SecretAccessKey']))
         click.secho('export AWS_SESSION_TOKEN={}'.format(response['Credentials']['SessionToken']))
-        click.secho('export AWS_DEFAULT_REGION=us-east-1')
+        click.secho('export AWS_DEFAULT_REGION={}'.format(region))
     if echo_env is True:
         click.secho('=' * 100, fg='blue')
         click.secho('export AWS_ACCESS_KEY_ID={}'.format(response['Credentials']['AccessKeyId']))
         click.secho('export AWS_SECRET_ACCESS_KEY={}'.format(response['Credentials']['SecretAccessKey']))
         click.secho('export AWS_SESSION_TOKEN={}'.format(response['Credentials']['SessionToken']))
-        click.secho('export AWS_DEFAULT_REGION=us-east-1')
+        click.secho('export AWS_DEFAULT_REGION={}'.format(region))
         click.secho('=' * 100, fg='blue')
 
 
-def __console_output(debug, echo_env, response):
+def __console_output(debug, echo_env, response, region):
     if debug is True:
         print('\n' * 10)
         print("=" * 30)
@@ -52,7 +52,7 @@ def __console_output(debug, echo_env, response):
         print('aws_access_key_id = {}'.format(response['Credentials']['AccessKeyId']))
         print('aws_secret_access_key = {}'.format(response['Credentials']['SecretAccessKey']))
         print('aws_session_token = {}'.format(response['Credentials']['SessionToken']))
-        print('region = us-east-1')
+        print('region = {}'.format(region))
         print()
         print("=" * 30)
         print("#AWS ENV VARIABLES")
@@ -60,13 +60,13 @@ def __console_output(debug, echo_env, response):
         print('export AWS_ACCESS_KEY_ID={}'.format(response['Credentials']['AccessKeyId']))
         print('export AWS_SECRET_ACCESS_KEY={}'.format(response['Credentials']['SecretAccessKey']))
         print('export AWS_SESSION_TOKEN={}'.format(response['Credentials']['SessionToken']))
-        print('export AWS_DEFAULT_REGION=us-east-1')
+        print('export AWS_DEFAULT_REGION={}'.format(region))
     if echo_env is True:
         print('=' * 100)
         print('export AWS_ACCESS_KEY_ID={}'.format(response['Credentials']['AccessKeyId']))
         print('export AWS_SECRET_ACCESS_KEY={}'.format(response['Credentials']['SecretAccessKey']))
         print('export AWS_SESSION_TOKEN={}'.format(response['Credentials']['SessionToken']))
-        print('export AWS_DEFAULT_REGION=us-east-1')
+        print('export AWS_DEFAULT_REGION={}'.format(region))
         print('=' * 100)
 
 
@@ -105,21 +105,22 @@ def __get_saml_roles_providers_from_saml(saml):
     return role_provider_dict
 
 
-def get_creds_via_saml_request(role, saml, debug, echo_env, cli=True):
+def get_creds_via_saml_request(role, saml, debug, echo_env, region, ttl, cli=True):
     import boto3
-    client = boto3.client("sts")
+    client = boto3.client("sts", region_name=region)
     role_provider_dict = __get_saml_roles_providers_from_saml(saml)
     principal_arn = role_provider_dict[role]
     response = client.assume_role_with_saml(
             RoleArn=role,
             PrincipalArn=principal_arn,
-            SAMLAssertion=saml
+            SAMLAssertion=saml,
+            DurationSeconds=int(ttl)
     )
 
     if cli is True:
-        __click_output(debug, echo_env, response)
+        __click_output(debug, echo_env, response, region)
     else:
-        __console_output(debug, echo_env, response)
+        __console_output(debug, echo_env, response, region)
 
     return AWSCreds(response['Credentials']['AccessKeyId'],
                     response['Credentials']['SecretAccessKey'],
